@@ -1,0 +1,2 @@
+admin-generator-bundle
+======================

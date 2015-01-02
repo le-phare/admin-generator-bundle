@@ -1,0 +1,24 @@
+{
+    "name": "lephare/admin-generator-bundle",
+    "type": "symfony-bundle",
+    "description": "Generator Bundle for Faros",
+    "keywords": ["Admin Generator"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Blake ETEME",
+            "email": "blake.eteme@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0",
+
+        "faros/avant-theme-bundle": "*",
+        "symfony/framework-bundle": "~2.5"
+    },
+    "autoload": {
+        "psr-0": { "Lephare\\Bundle\\AdminGeneratorBundle": "" }
+    },
+    "target-dir": "Lephare/Bundle/AdminGeneratorBundle",
+    "minimum-stability": "dev"
+}
