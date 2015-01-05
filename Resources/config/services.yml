@@ -1,5 +1,5 @@
 services:
-    lephare_admin_generator.command.admin_generaor:
+    lephare_admin_generator.command.admin_generator:
         class: "Lephare\Bundle\AdminGeneratorBundle\Command\GeneratorCommand"
         arguments:
             - "@kernel"
