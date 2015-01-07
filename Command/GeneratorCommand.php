@@ -9,6 +9,7 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\Finder\Finder;
@@ -38,7 +39,7 @@ class GeneratorCommand extends Command
             ->setName('lephare:admin:generate')
             ->setDefinition([
                 new InputArgument('bundle', InputArgument::REQUIRED, 'The destination bundle name'),
-                new InputOption('filter', null, InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'A string pattern used to match entities that should be processed.'),
+                new InputOption('filter', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'A string pattern used to match entities that should be processed.'),
             ])
         ;
     }
@@ -49,7 +50,11 @@ class GeneratorCommand extends Command
         $finder = new Finder();
 
         $destPath = $this->get('dest-path');
-        shell_exec('rm -f ' . $destPath . '/*.orm.xml');
+        if (!($filters = $in->getOption('filter'))) {
+            $out->writeln('No entity to process.');
+            return 0;
+        }
+
 
         $input = [
             'command' => 'doctrine:mapping:convert',
@@ -57,15 +62,19 @@ class GeneratorCommand extends Command
             'dest-path' => $destPath,
 
             '--force' => true,
-            '--filter' => $in->getOption('filter') ? $in->getOption('filter') : $this->get('filter'),
         ];
 
-        if (0 === $app->doRun(new ArrayInput($input), $out)) {
-            shell_exec("sed -i 's/<doctrine-mapping .*>/<doctrine-mapping>/g' app/Resources/metadata/*.xml");
-            $out->writeln('Schema files sucessfully generated ...');
+        if (0 !== $app->doRun(new ArrayInput($input), new NullOutput())) {
+            return -1;
         }
 
-        $files = $finder->files()->in($destPath)->name('*.xml');
+        shell_exec("sed -i 's/<doctrine-mapping .*>/<doctrine-mapping>/g' app/Resources/metadata/*.xml");
+        $out->writeln('Schema files sucessfully generated ...');
+
+        $files = $finder->files()
+            ->in($destPath)
+            ->name('*.Entity.*.orm.xml')
+        ;
         $bundle = $this->kernel->getBundle($in->getArgument('bundle'));
 
         $controllerGenerator = GeneratorFactory::create('controller', $this->kernel, $bundle, $this->parameters);
@@ -78,27 +87,40 @@ class GeneratorCommand extends Command
         foreach ($files as $file) {
             $metadata = new \DOMDocument();
             $metadata->load($file->getPathname());
-
-            $controllerGenerator->generate($metadata);
-            $formGenerator->generate($metadata);
-            $formViewGenerator->generate($metadata);
-            $routingGenerator->generate($metadata);
-            $roleGenerator->generate($metadata);
-            $menuGenerator->generate($metadata);
-
             list($namespace, $name) = $this->getEntityInfo($metadata);
-            $out->writeln('Admin interface sucessfully generated for <comment>' . $name . '</comment>.');
+            $flag = false;
+
+            foreach ($filters as $filter) {
+                if (preg_match('/' . $filter . '/', $name)) {
+                    $flag = true;
+                }
+            }
+
+            if ($flag) {
+                $controllerGenerator->generate($metadata);
+                $formGenerator->generate($metadata);
+                $formViewGenerator->generate($metadata);
+                $routingGenerator->generate($metadata);
+                $roleGenerator->generate($metadata);
+                $menuGenerator->generate($metadata);
+
+                $out->writeln('Admin interface sucessfully generated for <comment>' . $name . '</comment>.');
+            }
         }
+
+        shell_exec('rm -f ' . $destPath . '/*.orm.xml');
     }
 
     protected function getEntityInfo(\DomDocument $metadata)
     {
         $domList = $metadata->getElementsByTagName('entity');
-        $entity = str_replace('\\', '/', $domList->item(0)->getAttribute('name'));
+        if ($domList->item(0)) {
+            $entity = str_replace('\\', '/', $domList->item(0)->getAttribute('name'));
 
-        $items = array_reverse(explode('/', $entity));
+            $items = array_reverse(explode('/', $entity));
 
-        return [ 'Entity' === $items[1] ? null : $items[1], $items[0] ];
+            return [ 'Entity' === $items[1] ? null : $items[1], $items[0] ];
+        }
     }
 
     protected function get($parameter)

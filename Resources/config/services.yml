@@ -4,6 +4,6 @@ services:
         arguments:
             - "@kernel"
             - "@doctrine.orm.entity_manager"
-            - { dest-path: "%kernel.root_dir%/Resources/metadata", filter: "AppBundle", kernel.root_dir: "%kernel.root_dir%" }
+            - { dest-path: "%kernel.root_dir%/Resources/metadata", kernel.root_dir: "%kernel.root_dir%" }
         tags:
             -  { name: console.command }
