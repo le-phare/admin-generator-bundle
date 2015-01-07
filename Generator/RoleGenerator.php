@@ -35,7 +35,7 @@ class RoleGenerator extends AbstractGenerator
         $resourceIndex = [
             'resource' => sprintf('@%s/Resources/config/roles.yml', $this->bundle->getName()),
         ];
-        $roleBundleIndex = strtoupper(sprintf('ROLE_ADMIN_%s_%s_BUNDLE', Container::underscore($this->bundle->getName()), Container::underscore($namespace)));
+        $roleBundleIndex = strtoupper(sprintf('ROLE_ADMIN_%s', Container::underscore($this->bundle->getName())));
 
         if (isset($roles['imports'])
             && (false !== ($key = array_search($resourceIndex, $roles['imports'])))) {
