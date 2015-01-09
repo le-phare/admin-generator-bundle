@@ -62,7 +62,7 @@ class RoleGenerator extends AbstractGenerator
         $roles['security']['role_hierarchy'][$roleBundleIndex] = isset($roles['security']['role_hierarchy'][$roleBundleIndex])
             ? $roles['security']['role_hierarchy'][$roleBundleIndex]
             : [];
-        $roleIndex = sprintf('ROLE_ADMIN_%s', strtoupper(Container::underscore($name)));
+        $roleIndex = sprintf('ROLE_ADMIN_%s', strtoupper($name));
         $roles['security']['role_hierarchy'][$roleIndex] = isset($roles['security']['role_hierarchy'][$roleIndex]) ? $roles['security']['role_hierarchy'][$roleIndex] : [];
         $roles['security']['role_hierarchy'] = array_merge($roles['security']['role_hierarchy'], [
             $roleBundleIndex => array_values(array_unique(array_merge($roles['security']['role_hierarchy'][$roleBundleIndex], [ $roleIndex ]))),

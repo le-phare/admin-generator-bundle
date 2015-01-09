@@ -132,7 +132,7 @@ class <xsl:value-of select="$ccname"/>Controller extends ORMController
      */
     protected function getRolePrefix()
     {
-        return 'ROLE_ADMIN_<xsl:value-of select="php:function('strtoupper', $_name)"/>_';
+        return 'ROLE_ADMIN_<xsl:value-of select="php:function('strtoupper', $ccname)"/>_';
     }
 
     /**
