@@ -25,6 +25,7 @@ class RoutingGenerator extends AbstractGenerator
     {
         $routingConfig = sprintf('%s/Resources/config/routing.yml', $this->bundle->getPath());
         $routing = $this->yaml->parse(file_get_contents($routingConfig));
+        $routing = !$routing ? [] : $routing;
         list($namespace, $name) = $this->getEntityInfo($metadata);
 
         $resourceIndex = sprintf(

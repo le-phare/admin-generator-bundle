@@ -13,7 +13,7 @@
     "require": {
         "php": ">=5.4.0",
 
-        "lephare/menu-bundle": "*",
+        "lephare/menu-bundle": "dev-master",
         "faros/avant-theme-bundle": "*",
         "symfony/framework-bundle": "~2.5"
     },

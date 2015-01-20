@@ -68,7 +68,6 @@ class GeneratorCommand extends Command
             return -1;
         }
 
-        shell_exec("sed -i 's/<doctrine-mapping .*>/<doctrine-mapping>/g' app/Resources/metadata/*.xml");
         $out->writeln('Schema files sucessfully generated ...');
 
         $files = $finder->files()
@@ -85,6 +84,9 @@ class GeneratorCommand extends Command
         $menuGenerator = GeneratorFactory::create('menu', $this->kernel, $bundle, $this->parameters);
 
         foreach ($files as $file) {
+            $content = file_get_contents($file->getPathname());
+            file_put_contents($file->getPathname(), preg_replace('/<doctrine-mapping .*>/', '<doctrine-mapping>', $content));
+
             $metadata = new \DOMDocument();
             $metadata->load($file->getPathname());
             list($namespace, $name) = $this->getEntityInfo($metadata);
@@ -108,7 +110,9 @@ class GeneratorCommand extends Command
             }
         }
 
-        shell_exec('rm -f ' . $destPath . '/*.orm.xml');
+        foreach (glob($destPath . '/*.orm.xml') as $filename) {
+            unlink($filename);
+        }
     }
 
     protected function getEntityInfo(\DomDocument $metadata)
