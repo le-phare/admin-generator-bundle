@@ -51,7 +51,7 @@ class MenuGenerator extends AbstractGenerator
         ;
         $rootNode['append'][$itemIndex] = array_merge($rootNode['append'][$itemIndex], [
             sprintf('menu.%s', Container::underscore($name)) => [
-                'role' => sprintf('ROLE_ADMIN_%s_LIST', strtoupper(Container::underscore($name))),
+                'role' => sprintf('ROLE_ADMIN_%s_LIST', strtoupper($name)),
                 'options' => [
                     'route' => sprintf(
                         '%s_%s_list',
